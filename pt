@@ -238,7 +238,7 @@ case "$1" in
     ;;
   find | fin | fi | f )
     CMD=find
-    FRIEND=apt-file
+    FRIEND="apt-file -i"
     ;;
   list | lis | li | l | ls )
     if [ $# -le 1 ]; then
