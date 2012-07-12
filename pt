@@ -1,0 +1,300 @@
+#!/usr/bin/env bash
+#
+# A wrapper for the most used commands for apt-{get,cache,file}.
+#
+# TODO
+# - wrapping dlocate/dpkg/?
+# - zsh autocompletion functionality support code
+# - divide usage and (additional) help output?
+# - help option to list all supported commands
+# - sanity check(s)
+#
+# Note, contributions/fixes/ideas kindly accepted :-)
+#
+# BUGS
+# - most probably :-)
+#
+# Original code by "Anders D" <anders@dubgaard.net>
+#
+# Major contributions by "Thor A" <ta@toggle.be>
+
+set -e
+
+usage() {
+  echo "\
+Usage: apt [options] command [pattern]
+
+apt is a simple wrapper for apt-get and (some) friends.
+
+'pattern' is parsed to the wrapped program, and so may also
+contain options as well package name(s).  Most commands can
+be abbreviated, the most popular ones are listed below,
+including shortest abbreviation.
+
+Options include:
+  -h    this very help text
+  -v    be verbose
+  -n    dryrun, don't do nothing
+  -V    print version
+
+Commands:
+  u     | update                 : Update apt-get and apt-file databases
+  s     | search PATTERN         : Search for PATTERN
+  sh    | show PKG...            : Show package description
+  p     | policy PKG...          : Show package policy
+  i     | install [PKG...]       : Install PKG
+  r     | remove PKG...          : Remove a package
+  so    | source PKG...          : Fetch source for PKG
+  du    | dist-upgrade           : Perform dist-upgrade
+  upg   | upgrade                : Upgrade packages
+  rp    | purge PKG...           : Remove and purge PKG
+  c     | clean                  : Clean out debs from apt-get cache
+  pkg   | showpkg PKG...         : Show all dependency info for PKG
+  f     | find PATTERN           : Search for PATTERN within all packages
+  l     | list PKG...            : List PKG contents
+  d     | depends PKG...         : Show depends for package
+  rd    | rdepends PKG...        : Show reverse dependencies for PKG
+  ac    | autoclean              : Clean non-downloadable packages
+  ar    | autoremove             : Remove no-longer-needed packages 
+  dot   | dotty PKG...           : Generate dot graph of dependencies
+  dum   | dump                   : Show short listing of all packages
+  da    | dumpavail              : Print available packages
+  di    | dumpinstalled          : Print installed packages
+  dun   | dumpuninstalled        : Print uninstalled packages
+  pkgn  | pkgnames [PREFIX]      : Print package names with PREFIX
+  shsr  | showsrc PKG...         : Show all source package records for PKG
+  st    | stats                  : Show cache statistics
+  unm   | unmet                  : List packages with unmet dependencies
+  x     | xvcg PKG...            : Generate xvcg graph of dependencies
+  h     | help                   : Print this message
+
+For more commands, see the source code for apt and/or run
+apt-get(1), apt-cache(1) or apt-file(1) with --help.  "
+}
+
+VERSION="0.0.42"
+FRIEND=""
+MYNAME=$(basename "$0")
+CMDLINE=""
+RUN_UPDATE=""
+VERBOSE=""
+DRYRUN=""
+SUDO=""
+
+while getopts ":hvnV" opt; do
+  case $opt in
+    h)
+      usage
+      exit 0
+      ;;
+    v)
+      VERBOSE=ya
+      ;;
+    n)
+      DRYRUN=ya
+      ;;
+    V)
+      echo "$MYNAME $VERSION"
+      exit 0
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
+  esac
+done
+
+shift $((OPTIND-1)); OPTIND=1
+
+case "$1" in 
+  help | hel | he | h | --help | -h )
+    usage
+    exit 0
+    ;;
+  update | updat | upda | upd | up | u )
+    SUDO=ya
+    RUN_UPDATE=ya
+    SUDO=ya
+    ;;
+  upgrade | upgrad | upgra | upgr | upg )
+    CMD=upgrade
+    FRIEND=apt-get
+    SUDO=ya
+    ;;
+  install | instal | insta | inst | ins | in | i )
+    CMD=install
+    FRIEND=apt-get
+    SUDO=ya
+    ;;
+  remove | remov | remo | rem | re | r )
+    CMD=remove 
+    FRIEND=apt-get
+    SUDO=ya
+    ;;
+  autoremove | autoremov | autoremo | autorem | autore | autor | ar )
+    CMD="-y autoremove"
+    FRIEND=apt-get
+    SUDO=ya
+    ;;
+  purge | purg | pur | pu | rp )
+    CMD="remove --purge"
+    FRIEND=apt-get
+    SUDO=ya
+    ;;
+  source | sourc | sour | sou | so | src )
+    CMD=source 
+    FRIEND=apt-get
+    ;;
+  build-dep | bd )
+    CMD=build-dep 
+    FRIEND=apt-get
+    SUDO=ya
+    ;;
+  dist-upgrade | dist-upgrad | dist-upgra | dist-upgr | dist-upg | dist-up | \
+                 dist-u | dist- | dist | dis | du )
+    CMD=dist-upgrade 
+    FRIEND=apt-get
+    SUDO=ya
+    ;;
+  clean | clea | cle | cl | c )
+    CMD=clean 
+    FRIEND=apt-get
+    SUDO=ya
+    ;;
+  autoclean | autoclean | autoclea | autocle | autocl | autoc | ac )
+    CMD=autoclean 
+    FRIEND=apt-get
+    SUDO=ya
+    ;;
+  check | chec | che | ch )
+    CMD=check
+    FRIEND=apt-get
+    ;;
+  showpkg | showpk | showp | pkg )
+    CMD=showpkg 
+    FRIEND=apt-cache
+    ;;
+  showsrc | showsr | shows | shosrc | shsrc | shsr )
+    CMD=showsrc 
+    FRIEND=apt-cache
+    ;;
+  stats | stat | sta | st )
+    CMD=stats 
+    FRIEND=apt-cache
+    ;;
+  dump | dum )
+    CMD=dump 
+    FRIEND=apt-cache
+    ;;
+  dumpavail | dumpavai | dumpava | dumpav | dumpa | da )
+    CMD=dumpavail 
+    FRIEND=apt-cache
+    ;;
+  dumpinstalled | dumpinstalle | dumpinstall | dumpinstal | dumpinsta | \
+  dumpinst | dumpins | dumpin | dumpi | di )
+    CMD="--get-selections | grep '\binstall\b' | cut -f1"
+    FRIEND=dpkg
+    ;;
+  dumpuninstalled | dumpuninstalle | dumpuninstall | dumpuninstal | dumpuninsta | \
+  dumpuninst | dumpunins | dumpunin | dumpuni | dumpun | dumpu | dun )
+    CMD=
+    FRIEND="(apt-cache pkgnames; dpkg --get-selections | cut -f1) \
+             | sort | uniq -c | sed -n 's/^ *1 \(.*\)$/\1/p'"
+    ;;
+  unmet | unme | unm )
+    CMD=unmet 
+    FRIEND=apt-cache
+    ;;
+  search | searc | sear | sea | se | s )
+    CMD=search 
+    FRIEND=apt-cache
+    ;;
+  show | sho | sh )
+    CMD=show 
+    FRIEND=apt-cache
+    ;;
+  depends | depend | depen | depe | dep | de | d )
+    CMD=depends 
+    FRIEND=apt-cache
+    ;;
+  rdepends | rdepend | rdepen | rdepe | rdep | rde | rd )
+    CMD=rdepends 
+    FRIEND=apt-cache
+    ;;
+  pkgnames | pkgname | pkgnam | pkgna | pkgn )
+    CMD=pkgnames 
+    FRIEND=apt-cache
+    ;;
+  dotty | dot )
+    CMD=dotty 
+    FRIEND=apt-cache
+    ;;
+  xvcg | x )
+    CMD=xvcg 
+    FRIEND=apt-cache
+    ;;
+  policy | polic | poli | pol | po | p )
+    CMD=policy
+    FRIEND=apt-cache
+    ;;
+  find | fin | fi | f )
+    CMD=find
+    FRIEND=apt-file
+    ;;
+  list | lis | li | l | ls )
+    if [ $# -le 1 ]; then
+      echo "Need at least one package name argument"
+      exit 1
+    elif [ -n "$(pt dumpinstalled | grep \^$2\$)" ]; then
+      CMD=-L
+      FRIEND=dpkg
+    else
+      # misusing the CMD/FRIEND system
+      CMD="list '^$2\$'"
+      FRIEND="apt-file -x"
+      shift
+    fi
+    ;;
+  *)
+    if [ -n "$1" ]; then
+      echo "Command not recognized."
+    else
+      usage
+    fi
+    exit 1
+    ;;
+esac
+shift
+
+if [ "$SUDO" ]; then
+  if which sudo > /dev/null; then
+    SUDO='sudo '
+  else 
+   if [[ `whoami` == 'root' ]]; then
+    SUDO=''
+   else
+    echo "Superuser priviledges required."
+    exit 1
+   fi
+  fi
+fi
+
+if [ "$RUN_UPDATE" ]; then
+  CMDLINE="${SUDO}sh -c 'apt-get update; apt-file update'"
+else
+  CMDLINE="${SUDO}$FRIEND $CMD $@"
+fi
+
+if [ -n "$VERBOSE" ] || [ -n "$DRYRUN" ]; then
+  echo "Command: $CMDLINE"
+fi
+
+if [ "$DRYRUN" ]; then
+  exit 0
+else
+  if [ $RUN_UPDATE ] || [ -x "$(which $FRIEND 2> /dev/null | head -n1)" ]; then
+    eval "$CMDLINE"
+  else
+    echo "$MYNAME: Unable to continue, needed program '$FRIEND' not installed." >&2
+    exit 1
+  fi
+fi
