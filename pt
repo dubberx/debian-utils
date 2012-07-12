@@ -18,17 +18,19 @@
 #
 # Major contributions by "Thor A" <ta@toggle.be>
 
+PROGNAME=pt
+
 set -e
 
 usage() {
   echo "\
-Usage: apt [options] command [pattern]
+Usage: $PROGNAME [options] command [pattern]
 
-apt is a simple wrapper for apt-get and (some) friends.
+$PROGNAME is a simple wrapper for apt-get and (some) friends.
 
-'pattern' is parsed to the wrapped program, and so may also
-contain options as well package name(s).  Most commands can
-be abbreviated, the most popular ones are listed below,
+'pattern' is passed to the wrapped program, and so may
+contain options as well as package name(s). Most commands
+can be abbreviated, the most popular ones are listed below,
 including shortest abbreviation.
 
 Options include:
@@ -65,11 +67,11 @@ Commands:
   shsr  | showsrc PKG...         : Show all source package records for PKG
   st    | stats                  : Show cache statistics
   unm   | unmet                  : List packages with unmet dependencies
-  cl    | changelog PKG...       : Show PKG changelog
+  clo   | changelog PKG...       : Show PKG changelog
   x     | xvcg PKG...            : Generate xvcg graph of dependencies
   h     | help                   : Print this message
 
-For more commands, see the source code for apt and/or run
+For more commands, see the source code for $PROGNAME and/or run
 apt-get(1), apt-cache(1) or apt-file(1) with --help.  "
 }
 
@@ -249,7 +251,7 @@ case "$1" in
     if [ $# -le 1 ]; then
       echo "Need at least one package name argument"
       exit 1
-    elif [ -n "$(pt dumpinstalled | grep \^$2\$)" ]; then
+    elif [ -n "$($PROGNAME dumpinstalled | grep \^$2\$)" ]; then
       CMD=-L
       FRIEND=dpkg
     else
