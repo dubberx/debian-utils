@@ -65,6 +65,7 @@ Commands:
   shsr  | showsrc PKG...         : Show all source package records for PKG
   st    | stats                  : Show cache statistics
   unm   | unmet                  : List packages with unmet dependencies
+  cl    | changelog PKG...       : Show PKG changelog
   x     | xvcg PKG...            : Generate xvcg graph of dependencies
   h     | help                   : Print this message
 
@@ -142,6 +143,10 @@ case "$1" in
     ;;
   source | sourc | sour | sou | so | src )
     CMD=source 
+    FRIEND=apt-get
+    ;;
+  changelog | changelo | changel | chgl | clog | chl | clo )
+    CMD=changelog
     FRIEND=apt-get
     ;;
   build-dep | bd )
