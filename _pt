@@ -1,0 +1,85 @@
+#compdef pt
+
+_pt() {
+  local -a arguments
+  local state line cmds 
+  arguments=(
+    '-h[Show usage information]'
+    '-n[Dry-run, just show what would be done]'
+    '-v[Be verbose about what is being done]'
+    '1: :->cmds'
+    '*: :->args'
+  )
+  _arguments -S $arguments
+
+  case $state in
+    cmds)
+      (echo '%s/^ *//';
+       echo '%s/.*| *//';
+       echo '%s/ *: */:/';
+       echo '%s/ .*:/:/';
+       echo '/Commands:/+1,/For more/-2p'
+      ) | ed -s =(pt -h) \
+        | while read cmd; do
+            cmds+=($cmd)
+          done 
+
+      _describe 'apt command' cmds && ret=0
+    ;;
+    args)
+      case $line[1] in
+        dumpuninstall | dumpuninstal    | dumpuninsta    | dumpuninst | \
+        dumpunins     | dumpunin        | dumpuni        | dumpun     | \
+        dumpu         | dumpuninstalled | dumpuninstalle | clean      | \
+        clea          | cle             | cl             | c          | \
+        dist-upgrade  | dist-upgrad     | dist-upgra     | dist-upgr  | \
+        dist-upg      | dist-up         | dist-u         | dist-      | \
+        dist          | dis             | di             | upgrade    | \
+        upgrad        | upgra           | upgr           | upg        | \
+        update        | updat           | upda           | upd        | \
+        up            | u               | help           | hel        | \
+        he            | h               | --help         | -h         | \
+        autoclean     | autoclean       | autoclea       | autocle    | \
+        autocl        | autoc           | ac             |              \
+        autoremove    | autoremov       | autoremo       | autorem    | \
+        autore        | autor           | ar )
+          _message "nothing to complete"
+          ;;
+        find     | fin     | fi     | f     |          \
+        pkgnames | pkgname | pkgnam | pkgna | pkgn |   \
+        search   | searc   | sear   | sea   | se   | s )
+          _message "pattern"
+          ;;
+        dotty     | dot      |                                        \
+        xvcg      | x        |                                        \
+        show      | sho      | sh      |                              \
+        dump      | dum      |                                        \
+        unmet     | unme     | unm     |                              \
+        list      | lis      | li      | l      |                     \
+        showpkg   | showpk   | showp   | pkg    |                     \
+        stats     | stat     | sta     | st     |                     \
+        dumpavail | dumpavai | dumpava | dumpav | dumpa |             \
+        source    | sourc    | sour    | sou    | so    | src  |      \
+        showsrc   | showsr   | shows   | shosrc | shsrc | shsr |      \
+        policy    | polic    | poli    | pol    | po    | p    |      \
+        install   | instal   | insta   | inst   | ins   | in   | i  | \
+        depends   | depend   | depen   | depe   | dep   | de   | d  | \
+        rdepends  | rdepend  | rdepen  | rdepe  | rdep  | rde  | rd   )
+          _deb_packages avail 
+          ;;
+        dumpinst      | dumpins      | dumpin      | dumpi      |               \
+        dumpinstalled | dumpinstalle | dumpinstall | dumpinstal | dumpinsta |   \
+        purge         | purg         | pur         | pu         | rp        |   \
+        remove        | remov        | remo        | rem        | re        | r )
+          _deb_packages installed 
+          ;;
+          *)
+            _message "command $line[1] not available"
+            ;;
+      esac
+    ;;
+  esac
+}
+
+_pt "$@"
+
