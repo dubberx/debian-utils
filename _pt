@@ -31,7 +31,7 @@ _pt() {
         dumpuninstall | dumpuninstal    | dumpuninsta    | dumpuninst | \
         dumpunins     | dumpunin        | dumpuni        | dumpun     | \
         dumpu         | dumpuninstalled | dumpuninstalle | clean      | \
-        clea          | cle             | cl             | c          | \
+        clea          | cle             |                  c          | \
         dist-upgrade  | dist-upgrad     | dist-upgra     | dist-upgr  | \
         dist-upg      | dist-up         | dist-u         | dist-      | \
         dist          | dis             | di             | upgrade    | \
@@ -50,21 +50,22 @@ _pt() {
         search   | searc   | sear   | sea   | se   | s )
           _message "pattern"
           ;;
-        dotty     | dot      |                                        \
-        xvcg      | x        |                                        \
-        show      | sho      | sh      |                              \
-        dump      | dum      |                                        \
-        unmet     | unme     | unm     |                              \
-        list      | lis      | li      | l      |                     \
-        showpkg   | showpk   | showp   | pkg    |                     \
-        stats     | stat     | sta     | st     |                     \
-        dumpavail | dumpavai | dumpava | dumpav | dumpa |             \
-        source    | sourc    | sour    | sou    | so    | src  |      \
-        showsrc   | showsr   | shows   | shosrc | shsrc | shsr |      \
-        policy    | polic    | poli    | pol    | po    | p    |      \
-        install   | instal   | insta   | inst   | ins   | in   | i  | \
-        depends   | depend   | depen   | depe   | dep   | de   | d  | \
-        rdepends  | rdepend  | rdepen  | rdepe  | rdep  | rde  | rd   )
+        dotty     | dot      |                                              \
+        xvcg      | x        |                                              \
+        show      | sho      | sh      |                                    \
+        dump      | dum      |                                              \
+        unmet     | unme     | unm     |                                    \
+        list      | lis      | li      | l      |                           \
+        showpkg   | showpk   | showp   | pkg    |                           \
+        stats     | stat     | sta     | st     |                           \
+        dumpavail | dumpavai | dumpava | dumpav | dumpa |                   \
+        source    | sourc    | sour    | sou    | so    | src  |            \
+        showsrc   | showsr   | shows   | shosrc | shsrc | shsr |            \
+        policy    | polic    | poli    | pol    | po    | p    |            \
+        install   | instal   | insta   | inst   | ins   | in   | i   |      \
+        depends   | depend   | depen   | depe   | dep   | de   | d   |      \
+        rdepends  | rdepend  | rdepen  | rdepe  | rdep  | rde  | rd  |      \
+        changelog | changelo | changel | chgl   | clog  | chl  | clo | cl )
           _deb_packages avail 
           ;;
         dumpinst      | dumpins      | dumpin      | dumpi      |               \
