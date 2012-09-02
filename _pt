@@ -13,7 +13,9 @@ _pt() {
   _arguments -S $arguments
 
   case $state in
-    cmds)
+    # Parse the output of "pt -h" with ed(1) and pretty-print with _describe
+    # by passing the cmds array by name
+    (cmds)
       (echo '%s/^ *//';
        echo '%s/.*| *//';
        echo '%s/ *: */:/';
@@ -26,7 +28,7 @@ _pt() {
 
       _describe 'apt command' cmds && ret=0
     ;;
-    args)
+    (args)
       case $line[1] in
         dumpuninstall | dumpuninstal    | dumpuninsta    | dumpuninst | \
         dumpunins     | dumpunin        | dumpuni        | dumpun     | \
@@ -83,4 +85,3 @@ _pt() {
 }
 
 _pt "$@"
-
