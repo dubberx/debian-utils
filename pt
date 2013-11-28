@@ -272,16 +272,13 @@ case "$1" in
 esac
 shift
 
-if [ "$SUDO" ]; then
+# Check if superuser priviledges are required
+if [[ $(id -u) > 0 ]] && [[ -n "$SUDO" ]]; then
   if which sudo > /dev/null; then
     SUDO='sudo '
   else 
-   if [[ `whoami` == 'root' ]]; then
-    SUDO=''
-   else
     echo "Superuser priviledges required."
     exit 1
-   fi
   fi
 fi
 
