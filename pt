@@ -261,6 +261,11 @@ case "$1" in
       shift
     fi
     ;;
+  configure | configur | configu | config | confi | conf | con | co )
+    CMD="--configure -a"
+    FRIEND=dpkg
+    SUDO=ya
+    ;;
   *)
     if [ -n "$1" ]; then
       echo "Command not recognized."
@@ -272,13 +277,17 @@ case "$1" in
 esac
 shift
 
-# Check if superuser priviledges are required
-if [[ $(id -u) > 0 ]] && [[ -n "$SUDO" ]]; then
+# Check if superuser priviledges are required, skip it if we are already root
+if [[ $((id -u)) == 0 ]]; then
+  SUDO=''
+else
+  if [[ $(id -u) > 0 ]] && [[ -n "$SUDO" ]]; then
   if which sudo > /dev/null; then
     SUDO='sudo '
   else 
     echo "Superuser priviledges required."
     exit 1
+    fi
   fi
 fi
 
