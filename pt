@@ -278,15 +278,15 @@ esac
 shift
 
 # Check if superuser priviledges are required, skip it if we are already root
-if [[ $((id -u)) == 0 ]]; then
+if [[ $(id -u) == 0 ]]; then
   SUDO=''
 else
-  if [[ $(id -u) > 0 ]] && [[ -n "$SUDO" ]]; then
-  if which sudo > /dev/null; then
-    SUDO='sudo '
-  else 
-    echo "Superuser priviledges required."
-    exit 1
+  if [[ -n "$SUDO" ]]; then
+    if which sudo > /dev/null; then
+      SUDO='sudo '
+    else
+      echo "Superuser priviledges required."
+      exit 1
     fi
   fi
 fi
