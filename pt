@@ -266,6 +266,11 @@ case "$1" in
     FRIEND=dpkg
     SUDO=ya
     ;;
+  reconfigure | reconfigur | reconfigu | reconfig | reconfi | reconf | recon | reco | rec)
+    CMD=""
+    FRIEND=dpkg-reconfigure
+    SUDO=ya
+    ;;
   *)
     if [ -n "$1" ]; then
       echo "Command not recognized."
